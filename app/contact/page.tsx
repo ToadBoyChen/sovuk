@@ -10,6 +10,7 @@ import { team } from "@/content/team";
 import { brand } from "@/lib/brand";
 
 export const metadata: Metadata = {
+  alternates: { canonical: "/contact" },
   title: "Contact",
   description: `Get in touch with ${brand.name}.`,
 };

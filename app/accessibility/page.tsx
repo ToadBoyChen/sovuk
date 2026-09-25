@@ -4,6 +4,7 @@ import LegalPage from "@/components/LegalPage";
 import { brand } from "@/lib/brand";
 
 export const metadata: Metadata = {
+  alternates: { canonical: "/accessibility" },
   title: "Accessibility statement",
   description: `How accessible the ${brand.name} website is, what we know falls short, and how to tell us about problems.`,
 };
