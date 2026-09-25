@@ -38,8 +38,16 @@ Tick items off as they're done, and add new ones in the right section. When an A
 
 ## 2. Launch
 
-- [ ] **You:** get a domain and matching email addresses.
-- [ ] **AI:** once the domain exists, set `brand.url` in `lib/brand.ts`. The canonical URLs, sitemap, robots file, preview cards, PDFs and structured data all follow it. Then check the build.
+- [ ] **You: choose the domain.** A `.uk` domain signals "British" at a glance: `.org.uk` for a non-profit or policy body, `.co.uk` / `.uk` for a company. Decide the legal form first; the privacy notice needs it too. Register the obvious variants (`.uk`, `.co.uk`, `.com`) and redirect them to the main one.
+- [ ] **You: choose an email provider** on the same domain. Options, with the sovereignty trade-off in mind:
+  - UK-based email hosting: most consistent with the message; check reliability and spam filtering.
+  - European, privacy-focused (e.g. Proton, mailbox.org): outside US jurisdiction.
+  - Google Workspace / Microsoft 365: most reliable and familiar to officials, but US companies; be ready to explain the choice.
+
+  Check each provider's current data-residency terms before choosing.
+- [ ] **You: set up email authentication** (SPF, DKIM and DMARC records at the domain) so mail reaches gov.uk inboxes rather than junk. The provider's setup guide covers it.
+- [ ] **You: create the addresses:** `hello@` (general and website), `firstname@` for each founder; optionally `research@` or `press@` later.
+- [ ] **AI:** once the domain and addresses exist, set `brand.url` and `brand.email` in `lib/brand.ts` and the founder `email`s in `content/team.ts`. The contact form, footer, privacy notice, canonical URLs, sitemap, robots file, preview cards, PDFs and structured data all follow. Then add the domain in Vercel and check the build.
 - [ ] **You:** add the domain to Google Search Console and submit `/sitemap.xml`.
 - [ ] **You:** check a research page and the home page in Google's [Rich Results Test](https://search.google.com/test/rich-results).
 - [ ] **You:** run Lighthouse (Chrome DevTools) on the live site, on a phone profile, and share the report with an AI to fix what it finds.
