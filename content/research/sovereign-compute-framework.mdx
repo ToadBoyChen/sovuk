@@ -1,0 +1,154 @@
+---
+title: What "sovereign" should mean for AI compute
+summary: A working definition of sovereign AI compute, a scoring method across six layers of the stack, and what it says about the options open to UK public services today.
+type: policy-brief
+topic: Framework
+authors: [toby-chen, victoria-de-bruijn, emma-walker]
+status: published
+date: 2026-09-25
+---
+
+## Summary
+
+"Sovereign AI" is used loosely. It can mean a model trained in the UK, a service hosted in a UK data centre, or a supplier headquartered here, and these are not the same thing. A service can be hosted in the UK and still be subject to another country's law, or depend on a model the UK cannot inspect or change.
+
+This brief proposes a definition that can be tested. It treats an AI service as a stack of six layers and asks, for each, who controls it and under which law. It then applies the test to four common ways of providing AI to public services.
+
+<Callout title="Recommendations">
+
+1. Define sovereign AI compute by **control and jurisdiction at every layer**, not by where the servers are.
+2. Judge services by their **weakest layer** as well as their average.
+3. Use the six-layer test in **procurement**, so buyers can compare options on the same basis.
+
+</Callout>
+
+## Why a definition matters
+
+Without an agreed definition, "sovereign" becomes a label any supplier can claim. Buyers in government cannot compare offers, and investment cannot be directed at the parts of the stack where the UK is most exposed.
+
+A useful definition has to be:
+
+- **Testable** — a buyer can check it from evidence a supplier can reasonably provide.
+- **Layered** — it distinguishes a UK-hosted service from a UK-controlled one.
+- **Proportionate** — it recognises that not every use needs the strictest standard.
+
+## Six layers of control
+
+We use the same six layers set out on our [overview of the stack](/#stack). For each layer we ask one question.
+
+| Layer | The question |
+| --- | --- |
+| Policy | Which country's law governs the service, and can a foreign authority compel access? |
+| Applications | Where are prompts, outputs and logs processed and stored? |
+| Models | Who controls the model weights, and can the UK inspect, adapt and audit them? |
+| Routing | Can a request leave the UK, including on failover? |
+| Compute | Who owns and operates the hardware, and who can switch it off? |
+| Energy | Is the service sited and powered in the UK? |
+
+Each layer is scored from 0 to 3.
+
+| Score | Meaning |
+| --- | --- |
+| 0 | Controlled from outside the UK |
+| 1 | In the UK, but under material foreign control or legal reach |
+| 2 | UK-controlled, with a limited foreign dependency |
+| 3 | UK-controlled and auditable end to end |
+
+## Measuring sovereignty
+
+For a service with layer scores $s_1, \dots, s_6$ and weights $w_1, \dots, w_6$ that sum to one, the **sovereignty index** is the weighted average, scaled to lie between 0 and 1:
+
+$$
+S = \frac{1}{3} \sum_{i=1}^{6} w_i \, s_i , \qquad \sum_{i=1}^{6} w_i = 1 .
+$$
+
+An average can hide a single point of failure: a service that is fully British except for a model controlled abroad is still exposed at that layer. So we also record the **weakest link**,
+
+$$
+s_{\min} = \min_i \, s_i ,
+$$
+
+and propose that a service counts as sovereign only if it passes both tests:
+
+$$
+S \ge 0.8 \quad \text{and} \quad s_{\min} \ge 2 .
+$$
+
+Unless stated otherwise we weight the six layers equally, $w_i = \tfrac{1}{6}$.
+
+## Four ways to provide AI today
+
+We apply the test to four common arrangements.[^archetypes]
+
+- **A. Overseas API.** A public body calls a model hosted and operated abroad.
+- **B. Overseas provider, UK region.** The same kind of service, run from data centres in the UK by a company headquartered elsewhere.
+- **C. UK-hosted open model.** An openly licensed model, adapted and run by a UK operator on UK infrastructure.
+- **D. Sovereign pooled compute.** Open models adapted on British data and served from accredited UK nodes, with an audit trail — the approach we propose.
+
+| Layer | A | B | C | D |
+| --- | --- | --- | --- | --- |
+| Policy | 0 | 1 | 2 | 3 |
+| Applications | 1 | 2 | 3 | 3 |
+| Models | 0 | 0 | 2 | 3 |
+| Routing | 0 | 1 | 3 | 3 |
+| Compute | 0 | 1 | 2 | 2 |
+| Energy | 0 | 3 | 3 | 3 |
+| **Index, $S$** | **0.06** | **0.44** | **0.83** | **0.94** |
+| **Weakest link, $s_{\min}$** | **0** | **0** | **2** | **2** |
+
+<Chart
+  type="bar"
+  title="Sovereignty index by arrangement"
+  subtitle="Equal weights across the six layers; 80% is the proposed threshold"
+  y={{ label: "Sovereignty index", suffix: "%" }}
+  data={[
+    { label: "A. Overseas API", value: 6 },
+    { label: "B. UK region", value: 44 },
+    { label: "C. UK-hosted open", value: 83 },
+    { label: "D. Pooled compute", value: 94 },
+  ]}
+  source="SovereignStrUKture scoring, table above."
+/>
+
+Hosting in the UK moves a service a long way on energy, but only part of the way overall. Arrangement B scores full marks for energy and still fails the weakest-link test, because the model and the legal control sit abroad. Arrangements C and D pass both tests. Neither scores 3 for compute, because the chips themselves are made abroad; that is a dependency to manage rather than one any single service can remove.
+
+## How robust is this?
+
+Equal weights are a choice. Some will argue that control of the model matters most, since a service that cannot inspect or change its model cannot fully answer for its outputs. To test this, we vary the weight on the model layer, $w_M$, and share the rest equally:
+
+$$
+S(w_M) = \frac{1}{3} \left( w_M \, s_M + \frac{1 - w_M}{5} \sum_{i \ne M} s_i \right).
+$$
+
+<Chart
+  type="line"
+  title="Sovereignty index as model control is weighted more heavily"
+  subtitle="Weight on the model layer, with the other five layers sharing the rest equally"
+  x={{ label: "Weight on the model layer", suffix: "%" }}
+  y={{ label: "Sovereignty index", suffix: "%" }}
+  series={[
+    { name: "D. Pooled compute", points: [[0, 93.3], [10, 94], [20, 94.7], [30, 95.3], [40, 96], [50, 96.7]] },
+    { name: "C. UK-hosted open", points: [[0, 86.7], [10, 84.7], [20, 82.7], [30, 80.7], [40, 78.7], [50, 76.7]] },
+    { name: "B. UK region", points: [[0, 53.3], [10, 48], [20, 42.7], [30, 37.3], [40, 32], [50, 26.7]] },
+  ]}
+  source="SovereignStrUKture scoring; equation above."
+/>
+
+The conclusions for A, B and D hold at any weighting. C is the marginal case: once the model layer carries more than about a third of the weight, C falls below the 0.8 threshold. Whether a UK-hosted open model counts as sovereign therefore depends on how much the UK can adapt and audit that model — which is exactly where we recommend investment.
+
+## Recommendations
+
+<Callout title="For government">
+
+1. **Adopt a layered definition.** Sovereign AI compute means UK control and UK jurisdiction at every layer, tested by the six questions above.
+2. **Use both tests.** Require an index of at least 0.8 *and* no layer below 2 for sensitive uses; allow lower thresholds, stated openly, for low-risk ones.
+3. **Put it into procurement.** Ask suppliers to evidence a score for each layer, so offers can be compared on the same basis.
+4. **Invest where scores are lowest.** Model control and compute ownership are the layers where UK options are weakest.
+
+</Callout>
+
+## What we will do next
+
+We will publish the scoring guidance in full with worked examples, test it with public bodies that are procuring AI, and report where the evidence is hard to obtain. Our forthcoming brief on [procuring sovereign AI](/research/public-sector-procurement) will build on it.
+
+[^archetypes]: The four arrangements are simplified types, not assessments of particular suppliers. Real services vary, and the scores should be applied to each on its own evidence.

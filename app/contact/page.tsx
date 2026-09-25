@@ -1,8 +1,12 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
+import Arrow from "@/components/ui/Arrow";
 import ContactForm from "@/components/ContactForm";
+import ContactFormFromUrl from "@/components/ContactFormFromUrl";
 import Eyebrow from "@/components/ui/Eyebrow";
 import Reveal from "@/components/ui/Reveal";
 import { audiences } from "@/content/contact";
+import { team } from "@/content/team";
 import { brand } from "@/lib/brand";
 
 export const metadata: Metadata = {
@@ -31,7 +35,10 @@ export default function ContactPage() {
 
         <div className="mt-16 grid gap-16 border-t border-ink pt-12 md:mt-24 md:grid-cols-12 md:pt-16">
           <div className="md:col-span-7">
-            <ContactForm />
+            {/* ?to= is only known in the browser; until then, the plain form. */}
+            <Suspense fallback={<ContactForm />}>
+              <ContactFormFromUrl />
+            </Suspense>
           </div>
 
           <aside className="md:col-span-4 md:col-start-9">
@@ -42,6 +49,21 @@ export default function ContactPage() {
             >
               {brand.email}
             </a>
+
+            <h2 className="mt-10 text-lg font-medium text-muted">Founders</h2>
+            <ul className="mt-2 grid gap-2">
+              {team.map((m) => (
+                <li key={m.slug}>
+                  <a
+                    href={`mailto:${m.email}`}
+                    className="flex flex-wrap items-baseline justify-between gap-x-4 text-lg transition-colors hover:text-sovereign"
+                  >
+                    <span className="font-medium">{m.name}</span>
+                    <span className="break-all text-ink/60">{m.email}</span>
+                  </a>
+                </li>
+              ))}
+            </ul>
 
             <h2 className="mt-10 text-lg font-medium text-muted">Based in</h2>
             <p className="mt-2 text-2xl font-medium">{brand.location.city}, United Kingdom</p>
@@ -54,9 +76,9 @@ export default function ContactPage() {
                     href={s.href}
                     target="_blank"
                     rel="noreferrer"
-                    className="text-xl font-medium transition-colors hover:text-sovereign"
+                    className="group inline-flex items-center gap-2 text-xl font-medium transition-colors hover:text-sovereign"
                   >
-                    {s.label} ↗
+                    {s.label} <Arrow direction="up-right" />
                   </a>
                 </li>
               ))}

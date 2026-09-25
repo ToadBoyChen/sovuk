@@ -1,15 +1,18 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { motion, useMotionValue, useMotionValueEvent, useScroll } from "motion/react";
-import DotCanvas, { type Dot } from "@/components/ui/DotCanvas";
+import DotCanvas from "@/components/ui/DotCanvas";
 import Button from "@/components/ui/Button";
 import Name from "@/components/Name";
 import { brand } from "@/lib/brand";
 import { loadImage, sampleImage } from "@/lib/dotMatrix";
 import { useReducedMotion } from "@/lib/useReducedMotion";
 
+/** Logo diameter in dots, when the stage allows. */
 const RES = 44;
+/** Cap on dots across the whole stage, to keep the scroll scrub smooth. */
+const MAX_DOTS = 3500;
 const clamp01 = (n: number) => Math.min(1, Math.max(0, n));
 
 /**
@@ -21,7 +24,11 @@ const clamp01 = (n: number) => Math.min(1, Math.max(0, n));
 function Hero() {
   const ref = useRef<HTMLDivElement>(null);
   const reduced = useReducedMotion();
-  const [dots, setDots] = useState<Dot[] | null>(null);
+  const [image, setImage] = useState<HTMLImageElement | null>(null);
+  // Dot size in px: the logo spans the stage's shorter side and the dot
+  // field fills the rest, so the stage is covered on any screen shape.
+  const [cell, setCell] = useState(0);
+  const stageRef = useRef<HTMLDivElement>(null);
   // Motion values, not state: they update every scroll frame without
   // re-rendering React (the canvas subscribes to `spread` directly).
   const spread = useMotionValue(1);
@@ -47,26 +54,52 @@ function Hero() {
   }, [reduced, textOpacity, spread]);
 
   useEffect(() => {
-    loadImage(brand.glyphSrc)
-      .then((img) =>
-        setDots(
-          sampleImage(img, RES, RES, { mask: "circle" }).map(({ x, y, brightness, alpha }) =>
-            alpha > 32 && brightness > 128 ? { x, y } : { x, y, alpha: 0.1 }
-          )
-        )
-      )
-      .catch(() => {});
+    loadImage(brand.glyphSrc).then(setImage).catch(() => {});
   }, []);
+
+  useEffect(() => {
+    const el = stageRef.current;
+    if (!el) return;
+    const ro = new ResizeObserver(([e]) => {
+      const { width: w, height: h } = e.contentRect;
+      if (!w || !h) return;
+      setCell(Math.max(6, Math.min(w, h) / RES, Math.sqrt((w * h) / MAX_DOTS)));
+    });
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+
+  /** Faint dots across the whole grid, with the logo lit in the middle. */
+  const buildDots = useCallback(
+    (cols: number, rows: number) => {
+      if (!image) return [];
+      const size = Math.min(cols, rows);
+      const ox = Math.floor((cols - size) / 2);
+      const oy = Math.floor((rows - size) / 2);
+      const lit = new Set(
+        sampleImage(image, size, size, { mask: "circle" })
+          .filter(({ brightness, alpha }) => alpha > 32 && brightness > 128)
+          .map(({ x, y }) => (y + oy) * cols + x + ox)
+      );
+      return Array.from({ length: cols * rows }, (_, i) => {
+        const x = i % cols;
+        const y = Math.floor(i / cols);
+        return lit.has(i) ? { x, y } : { x, y, alpha: 0.1 };
+      });
+    },
+    // `cell` changes the grid DotCanvas passes in; a new builder makes it rebuild.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [image, cell]
+  );
 
   return (
     <div ref={ref} className={reduced ? "" : "h-[200svh]"}>
       <section className="sticky top-0 flex h-svh min-h-[40rem] flex-col pt-20">
         {/* The canvas fills this stage; scattered dots stay inside it. */}
-        <div className="relative min-h-0 flex-1">
+        <div ref={stageRef} className="relative min-h-0 flex-1">
           <DotCanvas
-            dots={dots}
-            cols={RES}
-            rows={RES}
+            dots={image && cell ? buildDots : null}
+            cell={cell}
             tones={["--ink"]}
             flips={1}
             spread={spread}

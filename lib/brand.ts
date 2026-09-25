@@ -1,6 +1,6 @@
 /**
  * Single source of truth for brand identity. The name and logo are not final —
- * change them here and every page, the footer, metadata and ⌘K follow.
+ * change them here and every page, the footer and metadata follow.
  */
 export const brand = {
   name: "SovereignStrUKture",
@@ -18,7 +18,7 @@ export const brand = {
   ],
 } as const;
 
-/** Home-page sections, in order. Drives the nav, section rail and ⌘K palette. */
+/** Home-page sections, in order. Drives the nav and section rail. */
 export const sections = [
   { id: "top", label: "Introduction" },
   { id: "problem", label: "The problem" },

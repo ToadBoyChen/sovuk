@@ -110,6 +110,13 @@ function ProblemMapClient({ world, zoom }: { world: MapGrid; zoom: MapGrid }) {
   const [hub, setHub] = useState<number | null>(null);
   const settle = useRef<ReturnType<typeof setTimeout>>(undefined);
   const [scope, animate] = useAnimate<HTMLDivElement>();
+  const strip = useRef<HTMLDivElement>(null);
+
+  // Phones: start the scrolling map centred (London sits mid-map in both views).
+  useEffect(() => {
+    const el = strip.current;
+    if (el) el.scrollLeft = (el.scrollWidth - el.clientWidth) / 2;
+  }, []);
 
   useEffect(() => () => clearTimeout(settle.current), []);
 
@@ -155,121 +162,98 @@ function ProblemMapClient({ world, zoom }: { world: MapGrid; zoom: MapGrid }) {
         ))}
       </div>
 
-      {/* Map: one dot canvas that morphs between the world and the British Isles. */}
+      {/* Map: one dot canvas that morphs between the world and the British Isles.
+          Phones get a taller map in a sideways-scrolling strip, centred on the UK. */}
       <div
-        className="relative mt-8 w-full overflow-hidden"
-        style={{ aspectRatio: `${cols} / ${rows}` }}
-        role="group"
-        aria-label={
-          today
-            ? "World map: requests from the UK travel to overseas AI and cloud hubs and back."
-            : `Map of the UK: requests stay between ${ukSites.map((s) => s.name).join(", ")}.`
-        }
+        ref={strip}
+        className="-mx-4 mt-8 overflow-x-auto overscroll-x-contain px-4 [scrollbar-width:none] md:mx-0 md:overflow-visible md:px-0"
       >
-        <div ref={scope} className="absolute inset-0">
-          <DotCanvas
-            dots={morphing ? current.morph : current.dots}
-            cols={cols}
-            rows={rows}
-            tones={TONES}
-            flips={1}
-            repel={2}
-            bleed={16}
-            bootMs={1200}
-            bootStyle="fill"
-            transitionMs={MORPH_MS}
-            className="size-full"
-          />
-          {/* Packets and hubs for the current view, once its dots are in. */}
-          <motion.div
-            key={view}
-            className="absolute inset-0"
-            initial={morphing ? { opacity: 0 } : false}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.4, delay: morphing ? MORPH_MS / 1000 / 2 : 0 }}
-          >
-            {today ? (
-              <>
-                {!reduced && <RoundTrips grid={world} routes={maps.today.routes} />}
-                {/* Hubs: companies show on hover, focus or tap. */}
-                {hubs.map((h, i) => {
-                  const c = maps.today.hubCells[i];
-                  const open = hub === i;
-                  return (
-                    <button
-                      key={h.name}
-                      type="button"
-                      aria-label={`${h.name}: ${h.companies.join(", ")}`}
-                      aria-expanded={open}
-                      className={`absolute size-5 -translate-x-1/2 -translate-y-1/2 rounded-full transition-shadow ${
-                        open ? "ring-2 ring-signal" : ""
-                      }`}
-                      style={{ left: `${fix((c.x / cols) * 100)}%`, top: `${fix((c.y / rows) * 100)}%` }}
-                      onPointerEnter={(e) => e.pointerType === "mouse" && setHub(i)}
-                      onPointerLeave={(e) => e.pointerType === "mouse" && setHub(null)}
-                      onFocus={() => setHub(i)}
-                      onBlur={() => setHub(null)}
-                      onClick={() => setHub(i)}
-                    >
-                      <AnimatePresence>
-                        {open && (
-                          <motion.span
-                            initial={{ opacity: 0, y: 4 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            exit={{ opacity: 0, y: 4 }}
-                            transition={{ duration: 0.15 }}
-                            className="pointer-events-none absolute bottom-full left-1/2 z-10 mb-1 hidden -translate-x-1/2 whitespace-nowrap border border-line bg-paper px-2 py-1 text-sm font-medium text-ink md:block"
-                          >
-                            {h.companies.join(" · ")}
-                          </motion.span>
-                        )}
-                      </AnimatePresence>
-                    </button>
-                  );
-                })}
-              </>
-            ) : (
-              !reduced && <RandomPackets grid={zoom} sites={maps.sovereign.siteCells} />
-            )}
-          </motion.div>
+        <div
+          className="relative h-(--map-h) w-[calc(var(--map-h)*var(--map-ar))] overflow-hidden md:h-auto md:w-full"
+          style={
+            {
+              aspectRatio: `${cols} / ${rows}`,
+              "--map-h": "min(20rem, 50svh)",
+              "--map-ar": cols / rows,
+            } as React.CSSProperties
+          }
+          role="group"
+          aria-label={
+            today
+              ? "World map: requests from the UK travel to overseas AI and cloud hubs and back."
+              : `Map of the UK: requests stay between ${ukSites.map((s) => s.name).join(", ")}.`
+          }
+        >
+          <div ref={scope} className="absolute inset-0">
+            <DotCanvas
+              dots={morphing ? current.morph : current.dots}
+              cols={cols}
+              rows={rows}
+              tones={TONES}
+              flips={1}
+              repel={2}
+              bleed={16}
+              bootMs={1200}
+              bootStyle="fill"
+              transitionMs={MORPH_MS}
+              className="size-full"
+            />
+            {/* Packets and hubs for the current view, once its dots are in. */}
+            <motion.div
+              key={view}
+              className="absolute inset-0"
+              initial={morphing ? { opacity: 0 } : false}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.4, delay: morphing ? MORPH_MS / 1000 / 2 : 0 }}
+            >
+              {today ? (
+                <>
+                  {!reduced && <RoundTrips grid={world} routes={maps.today.routes} />}
+                  {/* Hubs: companies show on hover, focus or tap. */}
+                  {hubs.map((h, i) => {
+                    const c = maps.today.hubCells[i];
+                    const open = hub === i;
+                    return (
+                      <button
+                        key={h.name}
+                        type="button"
+                        aria-label={`${h.name}: ${h.companies.join(", ")}`}
+                        aria-expanded={open}
+                        className={`absolute hidden size-5 -translate-x-1/2 -translate-y-1/2 rounded-full transition-shadow md:block ${
+                          open ? "ring-2 ring-signal" : ""
+                        }`}
+                        style={{ left: `${fix((c.x / cols) * 100)}%`, top: `${fix((c.y / rows) * 100)}%` }}
+                        onPointerEnter={(e) => e.pointerType === "mouse" && setHub(i)}
+                        onPointerLeave={(e) => e.pointerType === "mouse" && setHub(null)}
+                        onFocus={() => setHub(i)}
+                        onBlur={() => setHub(null)}
+                        onClick={() => setHub(i)}
+                      >
+                        <AnimatePresence>
+                          {open && (
+                            <motion.span
+                              initial={{ opacity: 0, y: 4 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              exit={{ opacity: 0, y: 4 }}
+                              transition={{ duration: 0.15 }}
+                              className="pointer-events-none absolute bottom-full left-1/2 z-10 mb-1 -translate-x-1/2 whitespace-nowrap border border-line bg-paper px-2 py-1 text-sm font-medium text-ink"
+                            >
+                              {h.companies.join(" · ")}
+                            </motion.span>
+                          )}
+                        </AnimatePresence>
+                      </button>
+                    );
+                  })}
+                </>
+              ) : (
+                !reduced && <RandomPackets grid={zoom} sites={maps.sovereign.siteCells} />
+              )}
+            </motion.div>
+          </div>
         </div>
       </div>
-
-      {/* Phones: hubs are too close together to tap on the map, so pick them here. */}
-      {today && (
-        <div className="mt-6 md:hidden">
-          <p className="text-sm text-muted">Tap a hub to see who runs AI there.</p>
-          <div className="mt-3 flex flex-wrap gap-2">
-            {hubs.map((h, i) => (
-              <button
-                key={h.name}
-                type="button"
-                aria-pressed={hub === i}
-                onClick={() => setHub((v) => (v === i ? null : i))}
-                className={`border px-3 py-1.5 text-sm font-medium transition-colors ${
-                  hub === i ? "border-signal bg-signal text-paper" : "border-line text-ink"
-                }`}
-              >
-                {h.name}
-              </button>
-            ))}
-          </div>
-          <AnimatePresence mode="wait" initial={false}>
-            {hub !== null && (
-              <motion.p
-                key={hub}
-                initial={{ opacity: 0, y: 4 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.15 }}
-                className="mt-4 text-lg font-medium"
-              >
-                {hubs[hub].companies.join(" · ")}
-              </motion.p>
-            )}
-          </AnimatePresence>
-        </div>
-      )}
+      <p className="mt-3 text-sm text-muted md:hidden">Drag sideways to explore the map.</p>
 
       {/* Caption */}
       <div className="mt-8 grid gap-4 border-t border-line pt-6 md:grid-cols-12">

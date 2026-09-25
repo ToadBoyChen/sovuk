@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Arrow from "@/components/ui/Arrow";
 
 interface ButtonProps {
   href: string;
@@ -21,12 +22,7 @@ function Button({ href, children, variant = "primary", className = "" }: ButtonP
       className={`group inline-flex items-center gap-3 px-6 py-4 text-base font-medium md:px-7 md:text-lg transition-colors duration-300 ${VARIANTS[variant]} ${className}`}
     >
       {children}
-      <span
-        aria-hidden
-        className="transition-transform duration-300 group-hover:translate-x-1"
-      >
-        →
-      </span>
+      <Arrow />
     </Link>
   );
 }

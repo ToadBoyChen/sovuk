@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { AnimatePresence, motion } from "motion/react";
+import { motion } from "motion/react";
 import { stations, steps } from "@/content/request";
 import { useReducedMotion } from "@/lib/useReducedMotion";
 
@@ -106,27 +106,41 @@ function Rail({ orientation, at, reached, reduced }: RailProps) {
   );
 }
 
-/** What the station the request is at does, swapped as it moves. */
-function Readout({ at, reduced }: { at: number; reduced: boolean }) {
-  const s = stations[at];
+/** One station's facts as label–value rows. */
+function Facts({ at }: { at: number }) {
   return (
-    <AnimatePresence mode="wait" initial={false}>
-      <motion.dl
-        key={s.name}
-        initial={reduced ? false : { opacity: 0, y: 6 }}
-        animate={{ opacity: 1, y: 0 }}
-        exit={reduced ? undefined : { opacity: 0, y: -6 }}
-        transition={{ duration: 0.2 }}
-        className="grid gap-y-2"
-      >
-        {s.facts.map(([label, value]) => (
-          <div key={label} className="flex items-baseline justify-between gap-6 text-base">
-            <dt className="text-muted">{label}</dt>
-            <dd className="text-right font-medium">{value}</dd>
-          </div>
-        ))}
-      </motion.dl>
-    </AnimatePresence>
+    <dl className="grid gap-y-2">
+      {stations[at].facts.map(([label, value]) => (
+        <div key={label} className="flex items-baseline justify-between gap-6 text-base">
+          <dt className="text-muted">{label}</dt>
+          <dd className="text-right font-medium">{value}</dd>
+        </div>
+      ))}
+    </dl>
+  );
+}
+
+/**
+ * The facts for the station the request is at, cross-faded as it moves.
+ * Every station's facts sit stacked in the same grid cell, so the panel is
+ * always as tall as the longest and never changes size.
+ */
+function Readout({ at, reduced }: { at: number; reduced: boolean }) {
+  return (
+    <div className="grid">
+      {stations.map((s, i) => (
+        <motion.div
+          key={s.name}
+          aria-hidden={i !== at}
+          className="col-start-1 row-start-1"
+          initial={false}
+          animate={{ opacity: i === at ? 1 : 0, y: i === at ? 0 : 6 }}
+          transition={{ duration: reduced ? 0 : 0.25, delay: i === at && !reduced ? 0.1 : 0 }}
+        >
+          <Facts at={i} />
+        </motion.div>
+      ))}
+    </div>
   );
 }
 
@@ -214,7 +228,7 @@ function Request() {
               </p>
               {/* Phones: this step's station facts inline, as there's no side panel. */}
               <div className="mt-6 border-t border-line pt-4 md:hidden">
-                <Readout at={step.at} reduced />
+                <Facts at={step.at} />
               </div>
             </motion.li>
           );

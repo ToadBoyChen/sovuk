@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Arrow from "@/components/ui/Arrow";
 import { brand, navLinks } from "@/lib/brand";
 import LondonClock from "@/components/ui/LondonClock";
 
@@ -45,10 +46,10 @@ function Footer() {
                     <Link
                       href={link.href}
                       {...(external && { target: "_blank", rel: "noreferrer" })}
-                      className="text-base text-ink/70 transition-colors hover:text-ink"
+                      className="group inline-flex items-center gap-1.5 text-base text-ink/70 transition-colors hover:text-ink"
                     >
                       {link.label}
-                      {external && <span aria-hidden> ↗</span>}
+                      {external && <Arrow direction="up-right" />}
                     </Link>
                   </li>
                 );
@@ -60,10 +61,10 @@ function Footer() {
         <div className="md:col-span-1 md:text-right">
           <a
             href="#top"
-            className="inline-flex size-10 items-center justify-center border border-line bg-paper transition-colors hover:border-ink"
+            className="group inline-flex size-10 items-center justify-center border border-line bg-paper transition-colors hover:border-ink"
             aria-label="Back to top"
           >
-            ↑
+            <Arrow direction="up" />
           </a>
         </div>
       </div>
