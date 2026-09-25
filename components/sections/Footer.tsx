@@ -70,8 +70,16 @@ function Footer() {
       </div>
 
       <div className="shell relative flex flex-col gap-2 border-t border-line py-6 text-sm text-muted md:text-base sm:flex-row sm:items-center sm:justify-between">
-        <span>
-          © {new Date().getFullYear()} {brand.name}
+        <span className="flex flex-wrap items-center gap-x-5 gap-y-1">
+          <span>
+            © {new Date().getFullYear()} {brand.name}
+          </span>
+          <Link href="/accessibility" className="transition-colors hover:text-ink">
+            Accessibility
+          </Link>
+          <Link href="/privacy" className="transition-colors hover:text-ink">
+            Privacy
+          </Link>
         </span>
         <span className="flex items-center gap-2">
           <span aria-hidden className="size-1.5 rounded-full bg-signal animate-pulse-dot" />

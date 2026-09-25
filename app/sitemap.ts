@@ -17,5 +17,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     })),
     ...team.map((m) => ({ url: url(`/team/${m.slug}`), changeFrequency: "monthly" as const, priority: 0.6 })),
     { url: url("/contact"), changeFrequency: "yearly", priority: 0.5 },
+    { url: url("/accessibility"), changeFrequency: "yearly", priority: 0.3 },
+    { url: url("/privacy"), changeFrequency: "yearly", priority: 0.3 },
   ];
 }
