@@ -8,6 +8,7 @@ import { team } from "@/content/team";
 import { formatDate, research, STATUSES, TYPES } from "@/lib/research";
 
 export const metadata: Metadata = {
+  alternates: { canonical: "/research" },
   title: "Research",
   description: "Policy briefs, papers and notes on sovereign AI compute, and our research plan.",
 };

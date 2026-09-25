@@ -1,3 +1,5 @@
+import type { Metadata } from "next";
+import JsonLd from "@/components/JsonLd";
 import CTA from "@/components/sections/CTA";
 import Hero from "@/components/sections/Hero";
 import ProblemMap from "@/components/sections/ProblemMap";
@@ -8,10 +10,31 @@ import Stack from "@/components/sections/Stack";
 import Team from "@/components/sections/Team";
 import WhoWeAre from "@/components/sections/WhoWeAre";
 import Section from "@/components/ui/Section";
+import { team } from "@/content/team";
+import { brand } from "@/lib/brand";
+import { organization, person } from "@/lib/schema";
+
+export const metadata: Metadata = { alternates: { canonical: "/" } };
 
 function Home() {
   return (
     <>
+      <JsonLd
+        data={{
+          "@context": "https://schema.org",
+          "@graph": [
+            { ...organization, founder: team.map((m) => ({ "@id": person(m.slug)["@id"] })) },
+            ...team.map((m) => person(m.slug)),
+            {
+              "@type": "WebSite",
+              name: brand.name,
+              url: brand.url,
+              inLanguage: "en-GB",
+              publisher: { "@id": organization["@id"] },
+            },
+          ],
+        }}
+      />
       <Hero />
       <Section
         id="problem"

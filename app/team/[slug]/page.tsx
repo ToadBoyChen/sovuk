@@ -7,7 +7,9 @@ import DotPortrait from "@/components/ui/DotPortrait";
 import Eyebrow from "@/components/ui/Eyebrow";
 import Reveal from "@/components/ui/Reveal";
 import { team } from "@/content/team";
+import JsonLd from "@/components/JsonLd";
 import { openGraphBase } from "@/lib/brand";
+import { organization, person } from "@/lib/schema";
 import { formatDate, research, STATUSES } from "@/lib/research";
 
 /** Only the founders' pages exist; any other slug is a 404. */
@@ -25,6 +27,7 @@ export async function generateMetadata({ params }: PageProps<"/team/[slug]">): P
   return {
     title: member.name,
     description: member.bio[0],
+    alternates: { canonical: `/team/${member.slug}` },
     openGraph: { ...openGraphBase, type: "profile", title: member.name, description: member.bio[0] },
   };
 }
@@ -39,6 +42,13 @@ export default async function TeamMemberPage({ params }: PageProps<"/team/[slug]
 
   return (
     <article className="pb-28 pt-32 md:pb-44 md:pt-44">
+      <JsonLd
+        data={{
+          "@context": "https://schema.org",
+          "@type": "ProfilePage",
+          mainEntity: { ...person(member.slug), description: member.bio[0], worksFor: organization },
+        }}
+      />
       <div className="shell">
         <Link
           href="/#team"

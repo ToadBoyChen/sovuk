@@ -3,12 +3,14 @@ import "katex/dist/katex.min.css";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import JsonLd from "@/components/JsonLd";
 import PdfButton from "@/components/research/PdfButton";
 import ReadingProgress from "@/components/research/ReadingProgress";
 import Arrow from "@/components/ui/Arrow";
 import Eyebrow from "@/components/ui/Eyebrow";
 import { team } from "@/content/team";
 import { brand, openGraphBase } from "@/lib/brand";
+import { organization, person } from "@/lib/schema";
 import { authorNames, citation, formatDate, research, STATUSES, TYPES } from "@/lib/research";
 
 /** Every piece in content/research has a page; anything else is a 404. */
@@ -26,6 +28,7 @@ export async function generateMetadata({ params }: PageProps<"/research/[slug]">
   return {
     title: piece.title,
     description: piece.summary,
+    alternates: { canonical: `/research/${piece.slug}` },
     authors: authorNames(piece).map((name) => ({ name })),
     openGraph: {
       ...openGraphBase,
@@ -52,6 +55,23 @@ export default async function ResearchPiecePage({ params }: PageProps<"/research
 
   return (
     <article className="pb-28 pt-32 md:pb-44 md:pt-44">
+      <JsonLd
+        data={{
+          "@context": "https://schema.org",
+          "@type": piece.type === "paper" ? "ScholarlyArticle" : "Report",
+          headline: piece.title,
+          description: piece.summary,
+          url: `${brand.url}/research/${piece.slug}`,
+          inLanguage: "en-GB",
+          genre: TYPES[piece.type],
+          about: piece.topic,
+          author: piece.authors.map(person),
+          publisher: organization,
+          creativeWorkStatus: STATUSES[piece.status],
+          ...(live && { datePublished: piece.date }),
+          image: `${brand.url}/research/${piece.slug}/opengraph-image`,
+        }}
+      />
       <ReadingProgress />
       <div className="shell">
         {/* Printed / PDF copies only: where the document came from. */}

@@ -91,3 +91,46 @@ export function ogImage({ label, title, detail }: { label: string; title: string
     { ...ogSize, fonts: [{ name: "Outfit", data: outfit, weight: 500, style: "normal" }] }
   );
 }
+
+/**
+ * The site icon: the dotted mark reduced to what survives at 16-32px, a
+ * solid disc with the S knocked out. `pad` is the white margin (the Apple
+ * home-screen icon needs one; browser tab icons don't).
+ */
+export function markImage(size: number, pad = 0) {
+  const disc = size - pad * 2;
+  return new ImageResponse(
+    (
+      <div
+        style={{
+          width: "100%",
+          height: "100%",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          background: pad ? "#ffffff" : "transparent",
+        }}
+      >
+        <div
+          style={{
+            width: disc,
+            height: disc,
+            borderRadius: "50%",
+            background: INK,
+            color: "#ffffff",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            fontFamily: "Outfit",
+            fontSize: disc * 0.72,
+            lineHeight: 1,
+            paddingBottom: disc * 0.06,
+          }}
+        >
+          S
+        </div>
+      </div>
+    ),
+    { width: size, height: size, fonts: [{ name: "Outfit", data: outfit, weight: 500, style: "normal" }] }
+  );
+}

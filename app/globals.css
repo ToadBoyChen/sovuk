@@ -45,6 +45,8 @@
  * screen, so wide desktops get bigger type instead of wider empty margins.
  */
 html {
+    /* Always white, even under a browser's forced dark mode. */
+    background: #ffffff;
     scroll-behavior: auto;
     /* Phones: a touch smaller (15px), so text and spacing scale down together. */
     font-size: 93.75%;

@@ -4,6 +4,7 @@ import LegalPage from "@/components/LegalPage";
 import { brand } from "@/lib/brand";
 
 export const metadata: Metadata = {
+  alternates: { canonical: "/privacy" },
   title: "Privacy notice",
   description: `What personal information the ${brand.name} website collects, why, and your rights.`,
 };

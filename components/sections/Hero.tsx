@@ -1,12 +1,7 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
-import {
-  motion,
-  useMotionValue,
-  useMotionValueEvent,
-  useScroll,
-} from "motion/react";
+import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
+import { animate, motion, useMotionValue, useMotionValueEvent, useScroll } from "motion/react";
 import DotCanvas from "@/components/ui/DotCanvas";
 import Button from "@/components/ui/Button";
 import Name from "@/components/Name";
@@ -20,15 +15,26 @@ const RES = 44;
 const MAX_DOTS = 3500;
 const clamp01 = (n: number) => Math.min(1, Math.max(0, n));
 
+/** Phones get a timed animation instead of the scroll-pinned one. */
+const PHONE = "(max-width: 767px)";
+const subscribePhone = (onChange: () => void) => {
+  const mql = window.matchMedia(PHONE);
+  mql.addEventListener("change", onChange);
+  return () => mql.removeEventListener("change", onChange);
+};
+
 /**
- * Full-height hero with a scroll-scrubbed assembly: the hero pins for an
- * extra screen, your scroll pulls the logo together from slowly drifting,
- * scattered dots, then the wordmark, tagline and buttons fade in. Reduced
- * motion shows the assembled logo and text straight away, without the pin.
+ * Full-height hero with an assembly: the logo pulls together from slowly
+ * drifting, scattered dots, then the wordmark, tagline and buttons fade in.
+ * On wider screens the hero pins for an extra screen and your scroll drives
+ * it; on phones it plays by itself on load, with no pin. Reduced motion
+ * shows the assembled logo and text straight away.
  */
 function Hero() {
   const ref = useRef<HTMLDivElement>(null);
   const reduced = useReducedMotion();
+  const phone = useSyncExternalStore(subscribePhone, () => window.matchMedia(PHONE).matches, () => false);
+  const played = useRef(false);
   const [image, setImage] = useState<HTMLImageElement | null>(null);
   // The dot field fills the whole hero, behind the text. `cell` is the dot
   // size in px, chosen so the logo spans the space above the text;
@@ -50,12 +56,22 @@ function Hero() {
   const textOpacity = useMotionValue(0);
 
   useMotionValueEvent(scrollYProgress, "change", (p) => {
-    if (reduced) return;
+    if (reduced || phone) return;
     // Assemble over the first 60% of the pinned scroll, easing into place…
     spread.set((1 - clamp01(p / 0.6)) ** 2);
     // …then bring in the wordmark and tagline.
     textOpacity.set(clamp01((p - 0.55) / 0.3));
   });
+
+  // Phones: once the dots are ready, play the assembly once, then the text.
+  const ready = Boolean(image && cell);
+  useEffect(() => {
+    if (!phone || reduced || !ready || played.current) return;
+    played.current = true;
+    const ease = [0.22, 1, 0.36, 1] as const;
+    animate(spread, 0, { duration: 2.4, delay: 0.5, ease });
+    animate(textOpacity, 1, { duration: 0.8, delay: 2.4, ease });
+  }, [phone, reduced, ready, spread, textOpacity]);
 
   // Reduced motion is only known on the client, so apply its static state here.
   useEffect(() => {
@@ -115,7 +131,7 @@ function Hero() {
   );
 
   return (
-    <div ref={ref} className={reduced ? "" : "h-[200svh]"}>
+    <div ref={ref} className={reduced || phone ? "" : "h-[200svh]"}>
       <section className="sticky top-0 flex h-svh min-h-[36rem] flex-col justify-end pt-20">
         {/* The canvas fills the hero below the nav, behind the text; scattered dots stay inside it. */}
         <div ref={stageRef} className="absolute inset-x-0 bottom-0 top-20">
@@ -137,6 +153,11 @@ function Hero() {
         >
           <div className="shell">
             <div className="grid gap-6 border-t border-ink py-8 md:grid-cols-12 md:items-end md:py-10">
+              {/* The page heading, in words people search for; always in the
+                  page for search engines and screen readers, whatever the fade. */}
+              <h1 className="sr-only">
+                {brand.name}: {brand.tagline}
+              </h1>
               <Name className="text-5xl sm:text-6xl md:col-span-4 md:text-7xl" />
               <p className="text-xl font-medium leading-[1.15] sm:text-2xl tracking-[-0.02em] md:col-span-5 md:text-3xl">
                 {brand.tagline}
