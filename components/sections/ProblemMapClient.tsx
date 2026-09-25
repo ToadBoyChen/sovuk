@@ -155,7 +155,7 @@ function ProblemMapClient({ world, zoom }: { world: MapGrid; zoom: MapGrid }) {
             aria-selected={view === v}
             onClick={() => choose(v)}
             className={`-mb-px border-b-2 pb-3 text-lg font-medium transition-colors md:text-xl ${
-              view === v ? "border-signal text-ink" : "border-transparent text-ink/40 hover:text-ink/70"
+              view === v ? "border-signal text-ink" : "border-transparent text-muted hover:text-ink"
             }`}
           >
             {views[v].label}
@@ -225,7 +225,7 @@ function ProblemMapClient({ world, zoom }: { world: MapGrid; zoom: MapGrid }) {
                         type="button"
                         aria-label={`${h.name}: ${h.companies.join(", ")}`}
                         aria-expanded={open}
-                        className={`absolute hidden size-5 -translate-x-1/2 -translate-y-1/2 rounded-full transition-shadow md:block ${
+                        className={`absolute hidden size-6 -translate-x-1/2 -translate-y-1/2 rounded-full transition-shadow md:block ${
                           open ? "ring-2 ring-signal" : ""
                         }`}
                         style={{ left: `${fix((c.x / cols) * 100)}%`, top: `${fix((c.y / rows) * 100)}%` }}
@@ -259,6 +259,27 @@ function ProblemMapClient({ world, zoom }: { world: MapGrid; zoom: MapGrid }) {
           </div>
         </div>
       </div>
+
+      {/* The hubs as text: an alternative to the small map markers, and the
+          only way to see the companies on phones. Collapsed by default. */}
+      <details className="mt-4 text-base">
+        <summary className="cursor-pointer text-muted transition-colors hover:text-ink">List hubs and companies</summary>
+        <ul className="mt-3 grid gap-2 sm:grid-cols-2">
+          {hubs.map((h) => (
+            <li key={h.name}>
+              <span className="font-medium">{h.name}</span>
+              <span className="text-muted"> · {h.companies.join(", ")}</span>
+            </li>
+          ))}
+        </ul>
+      </details>
+
+      {/* Screen readers: announce the view when it changes. */}
+      <p className="sr-only" aria-live="polite">
+        {today
+          ? "Showing today: requests from the UK travel to overseas AI and cloud hubs and back."
+          : "Showing with sovereign compute: requests stay between UK sites."}
+      </p>
 
       {/* Caption */}
       <div className="mt-8 grid gap-4 border-t border-line pt-6 md:grid-cols-12">

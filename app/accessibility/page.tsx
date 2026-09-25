@@ -31,15 +31,11 @@ export default function AccessibilityPage() {
       <h2>How accessible this website is</h2>
       <p>
         We aim to meet the Web Content Accessibility Guidelines (WCAG) version 2.2 at level AA. We know some parts of
-        the site do not yet do so. They are listed below, with what we are doing about them.
+        the site do not yet do so. They are listed below, and we are working to fix them.
       </p>
 
       <h2>Known issues</h2>
       <ul>
-        <li>
-          Some faded text, such as unselected tabs on the roadmap and the stack, has too little contrast against the
-          background (WCAG 1.4.3).
-        </li>
         <li>
           Some animations, such as packets moving on the world map, loop without a pause control. Setting your device to
           reduce motion stops them (WCAG 2.2.2).
@@ -48,13 +44,11 @@ export default function AccessibilityPage() {
           On the home page, the buttons at the bottom of the opening screen can receive keyboard focus before they have
           faded into view (WCAG 2.4.7).
         </li>
-        <li>The hub markers on the world map are smaller than the recommended target size (WCAG 2.5.8).</li>
-        <li>On phones, the companies at each hub on the world map are not shown.</li>
-        <li>
-          When you switch views on the world map or choose a roadmap phase, screen readers are not told that the content
-          has changed (WCAG 4.1.3).
-        </li>
       </ul>
+      <p>
+        On the world map, the hub markers are close together on some screen sizes. Every hub and its companies are also
+        listed under the map, under &ldquo;List hubs and companies&rdquo;.
+      </p>
 
       <h2>Reporting problems</h2>
       <p>

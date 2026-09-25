@@ -108,7 +108,7 @@ function RoadmapClient({ grid }: { grid: MapGrid }) {
                 <span className={`block text-xs font-medium ${STATUS[p.status].className}`}>
                   {p.when ?? STATUS[p.status].label}
                 </span>
-                <span className={`block text-base font-medium ${active ? "text-ink" : "text-ink/40"}`}>{p.title}</span>
+                <span className={`block text-base font-medium ${active ? "text-ink" : "text-muted"}`}>{p.title}</span>
               </button>
             );
           })}
@@ -171,6 +171,13 @@ function RoadmapClient({ grid }: { grid: MapGrid }) {
           </div>
         </div>
 
+        {/* Screen readers: announce what the map shows when the phase changes. */}
+        <p className="sr-only" aria-live="polite">
+          {`Map showing ${roadmap[selected].title}: ${
+            roadmap[selected].everywhere ? "the whole country" : roadmap[selected].places.map((p) => p.name).join(", ")
+          }.`}
+        </p>
+
         {/* Phones: the selected phase, right under the map. */}
         <div id="phase-panel-phone" role="tabpanel" className="md:hidden">
           <AnimatePresence mode="wait" initial={false}>
@@ -224,7 +231,7 @@ function RoadmapClient({ grid }: { grid: MapGrid }) {
                 >
                   <span
                     className={`text-3xl font-medium tracking-[-0.03em] transition-colors duration-300 md:text-5xl ${
-                      active ? "text-ink" : "text-ink/30 hover:text-ink/60"
+                      active ? "text-ink" : "text-muted hover:text-ink"
                     }`}
                   >
                     {p.title}
