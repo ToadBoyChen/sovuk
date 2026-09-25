@@ -94,9 +94,10 @@ function Nav() {
 
       {/* Mobile sheet */}
       <div
-        className={`fixed inset-x-0 bottom-0 top-20 bg-paper transition-[opacity,visibility] duration-300 md:hidden ${
-          open ? "visible opacity-100" : "invisible opacity-0"
-        }`}
+        data-lenis-prevent
+        className={`fixed inset-x-0 bottom-0 overflow-y-auto overscroll-contain bg-paper transition-[opacity,visibility] duration-300 md:hidden ${
+          scrolled ? "top-16" : "top-20"
+        } ${open ? "visible opacity-100" : "invisible opacity-0"}`}
       >
         <ul className="shell flex flex-col pt-8">
           {navLinks.map((link) => (
