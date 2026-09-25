@@ -20,6 +20,9 @@ export const brand = {
   ],
 } as const;
 
+/** Link-preview defaults. A page setting its own openGraph replaces the layout's, so spread this in. */
+export const openGraphBase = { siteName: brand.name, locale: "en_GB" } as const;
+
 /** Home-page sections, in order. Drives the nav and section rail. */
 export const sections = [
   { id: "top", label: "Introduction" },

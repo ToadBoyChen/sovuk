@@ -8,8 +8,8 @@ import ReadingProgress from "@/components/research/ReadingProgress";
 import Arrow from "@/components/ui/Arrow";
 import Eyebrow from "@/components/ui/Eyebrow";
 import { team } from "@/content/team";
-import { brand } from "@/lib/brand";
-import { citation, formatDate, research, STATUSES, TYPES } from "@/lib/research";
+import { brand, openGraphBase } from "@/lib/brand";
+import { authorNames, citation, formatDate, research, STATUSES, TYPES } from "@/lib/research";
 
 /** Every piece in content/research has a page; anything else is a 404. */
 export const dynamicParams = false;
@@ -22,7 +22,20 @@ const find = (slug: string) => research.find((r) => r.slug === slug);
 
 export async function generateMetadata({ params }: PageProps<"/research/[slug]">): Promise<Metadata> {
   const piece = find((await params).slug);
-  return piece ? { title: piece.title, description: piece.summary } : {};
+  if (!piece) return {};
+  return {
+    title: piece.title,
+    description: piece.summary,
+    authors: authorNames(piece).map((name) => ({ name })),
+    openGraph: {
+      ...openGraphBase,
+      type: "article",
+      title: piece.title,
+      description: piece.summary,
+      authors: authorNames(piece),
+      ...(piece.status === "published" && { publishedTime: piece.date }),
+    },
+  };
 }
 
 /**

@@ -7,6 +7,7 @@ import DotPortrait from "@/components/ui/DotPortrait";
 import Eyebrow from "@/components/ui/Eyebrow";
 import Reveal from "@/components/ui/Reveal";
 import { team } from "@/content/team";
+import { openGraphBase } from "@/lib/brand";
 import { formatDate, research, STATUSES } from "@/lib/research";
 
 /** Only the founders' pages exist; any other slug is a 404. */
@@ -21,7 +22,11 @@ const find = (slug: string) => team.find((m) => m.slug === slug);
 export async function generateMetadata({ params }: PageProps<"/team/[slug]">): Promise<Metadata> {
   const member = find((await params).slug);
   if (!member) return {};
-  return { title: member.name, description: member.bio[0] };
+  return {
+    title: member.name,
+    description: member.bio[0],
+    openGraph: { ...openGraphBase, type: "profile", title: member.name, description: member.bio[0] },
+  };
 }
 
 /** A founder's page: portrait, background, what they lead on, and a short bio. */
