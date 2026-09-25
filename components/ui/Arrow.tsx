@@ -1,4 +1,4 @@
-const TURN = { right: 0, left: 180, up: -90, "up-right": -45 } as const;
+const TURN = { right: 0, left: 180, up: -90, down: 90, "up-right": -45 } as const;
 
 interface ArrowProps {
   /** Which way it points. "up-right" marks links that leave the site. */

@@ -7,6 +7,7 @@ import DotPortrait from "@/components/ui/DotPortrait";
 import Eyebrow from "@/components/ui/Eyebrow";
 import Reveal from "@/components/ui/Reveal";
 import { team } from "@/content/team";
+import { openGraphBase } from "@/lib/brand";
 import { formatDate, research, STATUSES } from "@/lib/research";
 
 /** Only the founders' pages exist; any other slug is a 404. */
@@ -21,7 +22,11 @@ const find = (slug: string) => team.find((m) => m.slug === slug);
 export async function generateMetadata({ params }: PageProps<"/team/[slug]">): Promise<Metadata> {
   const member = find((await params).slug);
   if (!member) return {};
-  return { title: member.name, description: member.bio[0] };
+  return {
+    title: member.name,
+    description: member.bio[0],
+    openGraph: { ...openGraphBase, type: "profile", title: member.name, description: member.bio[0] },
+  };
 }
 
 /** A founder's page: portrait, background, what they lead on, and a short bio. */
@@ -50,7 +55,7 @@ export default async function TeamMemberPage({ params }: PageProps<"/team/[slug]
           <div className="md:col-span-7 md:col-start-6">
             <Eyebrow>{member.role}</Eyebrow>
             <Reveal>
-              <h1 className="mt-6 text-5xl font-medium leading-[1.02] tracking-[-0.035em] md:text-7xl">
+              <h1 className="mt-6 text-4xl font-medium sm:text-5xl leading-[1.02] tracking-[-0.035em] md:text-7xl">
                 {member.name}
                 <span className="text-signal">.</span>
               </h1>

@@ -7,7 +7,7 @@ import { team } from "@/content/team";
 import { brand } from "@/lib/brand";
 
 const FIELD =
-  "mt-2 w-full border-b-2 border-line bg-transparent py-3 text-xl outline-none transition-colors placeholder:text-ink/25 focus:border-sovereign";
+  "mt-2 w-full border-b-2 border-line bg-transparent py-3 text-xl outline-none transition-colors placeholder:text-muted focus:border-sovereign";
 
 /** Who a message can go to: the whole team, or one founder by slug. */
 const recipients = [

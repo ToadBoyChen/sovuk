@@ -27,7 +27,7 @@ function Nav() {
 
   return (
     <header
-      className={`fixed inset-x-0 top-0 z-50 transition-[background-color,border-color] duration-300 ${
+      className={`fixed inset-x-0 top-0 z-50 transition-[background-color,border-color] duration-300 print:hidden ${
         scrolled || open
           ? "border-b border-line bg-paper/95"
           : "border-b border-transparent"
@@ -95,7 +95,7 @@ function Nav() {
               <Link
                 href={link.href}
                 onClick={() => setOpen(false)}
-                className="group flex items-center justify-between py-5 text-5xl font-medium tracking-tight"
+                className="group flex items-center justify-between py-5 text-4xl font-medium tracking-tight sm:text-5xl"
               >
                 {link.label}
                 <Arrow className="text-2xl text-sovereign" />

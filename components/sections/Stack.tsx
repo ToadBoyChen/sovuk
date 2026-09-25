@@ -72,7 +72,7 @@ function Stack() {
               type="button"
               aria-pressed={active}
               className={`absolute left-[72%] -translate-y-1/2 whitespace-nowrap text-left text-base font-medium transition-colors md:hidden ${
-                active ? "text-sovereign" : "text-ink/40"
+                active ? "text-sovereign" : "text-muted"
               }`}
               initial={false}
               animate={{ top: `${top}%` }}
@@ -144,7 +144,7 @@ function Stack() {
                 </span>
                 <span
                   className={`text-3xl font-medium tracking-[-0.03em] transition-colors duration-300 md:text-4xl ${
-                    active ? "text-ink" : "text-ink/30 hover:text-ink/60"
+                    active ? "text-ink" : "text-muted hover:text-ink"
                   }`}
                 >
                   {layer.title}

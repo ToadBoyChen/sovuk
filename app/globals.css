@@ -46,7 +46,11 @@
  */
 html {
     scroll-behavior: auto;
-    font-size: 100%;
+    /* Phones: a touch smaller (15px), so text and spacing scale down together. */
+    font-size: 93.75%;
+    @media (width >= 40rem) {
+        font-size: 100%;
+    }
     @media (width >= 64rem) {
         font-size: 106.25%;
     }
@@ -170,4 +174,43 @@ html.lenis body {
 .research h2,
 .research h3 {
     scroll-margin-top: 6rem;
+}
+
+/*
+ * Print / "Download PDF": a clean A4 document. Screen-only chrome is hidden
+ * with Tailwind's print:hidden; this block sets the page and keeps figures,
+ * tables and equations from splitting across pages.
+ */
+@media print {
+    @page {
+        size: A4;
+        margin: 18mm 16mm;
+    }
+    html {
+        font-size: 10pt;
+    }
+    main {
+        overflow: visible;
+    }
+    article {
+        padding-block: 0 !important;
+    }
+    figure,
+    table,
+    aside,
+    .katex-display {
+        break-inside: avoid;
+    }
+    h1,
+    h2,
+    h3 {
+        break-after: avoid;
+    }
+    /* Chart data tables stay collapsed on screen; the charts carry the data on paper. */
+    details {
+        display: none;
+    }
+    a {
+        text-decoration: none;
+    }
 }

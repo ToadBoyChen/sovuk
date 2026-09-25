@@ -1,7 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Outfit } from "next/font/google";
 import "./globals.css";
-import { brand } from "@/lib/brand";
+import { brand, openGraphBase } from "@/lib/brand";
 import Nav from "@/components/ui/Nav";
 import Footer from "@/components/sections/Footer";
 import SmoothScroll from "@/components/ui/SmoothScroll";
@@ -17,6 +17,10 @@ export const metadata: Metadata = {
     template: `%s · ${brand.shortName}`,
   },
   description: brand.description,
+  // Absolute URLs for link previews and the sitemap.
+  metadataBase: new URL(brand.url),
+  openGraph: { ...openGraphBase, type: "website" },
+  twitter: { card: "summary_large_image" },
 };
 
 /** Light only: stops phone browsers in dark mode from recolouring the site. */

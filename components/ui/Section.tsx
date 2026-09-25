@@ -32,7 +32,7 @@ function Section({ id, label, title, intro, children, className = "" }: SectionP
         <Eyebrow>{label}</Eyebrow>
         <div className="mt-8 grid gap-6 md:mt-10 md:grid-cols-12">
           <Reveal className="md:col-span-8">
-            <h2 className="text-5xl font-medium leading-[1.02] tracking-[-0.035em] text-balance md:text-7xl xl:text-8xl">
+            <h2 className="text-4xl font-medium leading-[1.02] sm:text-5xl tracking-[-0.035em] text-balance md:text-7xl xl:text-8xl">
               <RedStop title={title} />
             </h2>
           </Reveal>

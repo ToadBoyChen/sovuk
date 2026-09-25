@@ -10,6 +10,8 @@ export const brand = {
     "Building the framework and policy for AI inference and training that stays within the United Kingdom.",
   glyphSrc: "/glyph.png",
   email: "hello@example.co.uk",
+  /** Public address, printed on PDFs. Update when the domain changes. */
+  url: "https://sovuk.vercel.app",
   location: { city: "London", lat: 51.5072, lon: -0.1276 },
   socials: [
     { label: "LinkedIn", href: "https://www.linkedin.com/" },
@@ -17,6 +19,9 @@ export const brand = {
     { label: "GitHub", href: "https://github.com/" },
   ],
 } as const;
+
+/** Link-preview defaults. A page setting its own openGraph replaces the layout's, so spread this in. */
+export const openGraphBase = { siteName: brand.name, locale: "en_GB" } as const;
 
 /** Home-page sections, in order. Drives the nav and section rail. */
 export const sections = [

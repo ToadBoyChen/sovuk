@@ -71,19 +71,19 @@ function Rail({ orientation, at, reached, reduced }: RailProps) {
               >
                 <span
                   className={`block text-2xl font-medium tracking-[-0.02em] transition-colors duration-300 lg:text-3xl ${
-                    here ? "text-ink" : "text-ink/30"
+                    here ? "text-ink" : "text-muted"
                   }`}
                 >
                   {s.name}
                 </span>
-                <span className={`block text-sm transition-colors duration-300 ${here ? "text-muted" : "text-ink/25"}`}>
+                <span className="block text-sm text-muted">
                   {s.role}
                 </span>
               </span>
             ) : (
               <span
                 className={`absolute top-4 -translate-x-1/2 whitespace-nowrap text-xs font-medium transition-colors duration-300 ${
-                  here ? "text-ink" : "text-ink/35"
+                  here ? "text-ink" : "text-muted"
                 }`}
                 style={{ left: along(i) }}
               >
@@ -214,14 +214,14 @@ function Request() {
               </span>
               <h3
                 className={`mt-4 text-3xl font-medium tracking-[-0.03em] transition-colors duration-500 md:text-5xl ${
-                  current ? "text-ink" : "text-ink/30"
+                  current ? "text-ink" : "text-muted"
                 }`}
               >
                 {step.title}
               </h3>
               <p
                 className={`mt-5 max-w-xl text-xl leading-relaxed transition-colors duration-500 ${
-                  current ? "text-ink/70" : "text-ink/30"
+                  current ? "text-ink/70" : "text-muted"
                 }`}
               >
                 {step.body}

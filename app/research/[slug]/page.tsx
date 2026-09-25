@@ -3,11 +3,13 @@ import "katex/dist/katex.min.css";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import PdfButton from "@/components/research/PdfButton";
 import ReadingProgress from "@/components/research/ReadingProgress";
 import Arrow from "@/components/ui/Arrow";
 import Eyebrow from "@/components/ui/Eyebrow";
 import { team } from "@/content/team";
-import { citation, formatDate, research, STATUSES, TYPES } from "@/lib/research";
+import { brand, openGraphBase } from "@/lib/brand";
+import { authorNames, citation, formatDate, research, STATUSES, TYPES } from "@/lib/research";
 
 /** Every piece in content/research has a page; anything else is a 404. */
 export const dynamicParams = false;
@@ -20,7 +22,20 @@ const find = (slug: string) => research.find((r) => r.slug === slug);
 
 export async function generateMetadata({ params }: PageProps<"/research/[slug]">): Promise<Metadata> {
   const piece = find((await params).slug);
-  return piece ? { title: piece.title, description: piece.summary } : {};
+  if (!piece) return {};
+  return {
+    title: piece.title,
+    description: piece.summary,
+    authors: authorNames(piece).map((name) => ({ name })),
+    openGraph: {
+      ...openGraphBase,
+      type: "article",
+      title: piece.title,
+      description: piece.summary,
+      authors: authorNames(piece),
+      ...(piece.status === "published" && { publishedTime: piece.date }),
+    },
+  };
 }
 
 /**
@@ -39,9 +54,17 @@ export default async function ResearchPiecePage({ params }: PageProps<"/research
     <article className="pb-28 pt-32 md:pb-44 md:pt-44">
       <ReadingProgress />
       <div className="shell">
+        {/* Printed / PDF copies only: where the document came from. */}
+        <p className="hidden border-b border-ink pb-3 text-sm print:flex print:justify-between">
+          <span className="font-medium">{brand.name}</span>
+          <span>
+            {brand.url.replace("https://", "")}/research/{piece.slug}
+          </span>
+        </p>
+
         <Link
           href="/research"
-          className="group inline-flex items-center gap-2 text-base font-medium text-muted transition-colors hover:text-sovereign"
+          className="group inline-flex items-center gap-2 text-base font-medium text-muted transition-colors hover:text-sovereign print:hidden"
         >
           <Arrow direction="left" /> Research
         </Link>
@@ -86,6 +109,12 @@ export default async function ResearchPiecePage({ params }: PageProps<"/research
           </div>
         </dl>
 
+        {piece.hasBody && (
+          <div className="mt-6">
+            <PdfButton />
+          </div>
+        )}
+
         {!live && (
           <p className="mt-8 max-w-3xl border-l-4 border-signal bg-subtle px-6 py-4 text-lg">
             <strong className="font-medium">Working draft.</strong>{" "}
@@ -96,10 +125,10 @@ export default async function ResearchPiecePage({ params }: PageProps<"/research
         )}
 
         {piece.hasBody && (
-          <div className="mt-12 grid gap-12 lg:grid-cols-12">
+          <div className="mt-12 grid gap-12 lg:grid-cols-12 print:block">
             {/* Contents */}
             {piece.headings.length > 1 && (
-              <nav aria-label="Contents" className="lg:order-last lg:col-span-3 lg:col-start-10">
+              <nav aria-label="Contents" className="lg:order-last lg:col-span-3 lg:col-start-10 print:hidden">
                 <div className="lg:sticky lg:top-28">
                   <p className="text-base font-medium text-muted">Contents</p>
                   <ol className="mt-3 grid gap-2 border-l border-line">
@@ -128,7 +157,12 @@ export default async function ResearchPiecePage({ params }: PageProps<"/research
                 <h2 id="cite-heading" className="text-base font-medium text-muted">
                   How to cite
                 </h2>
-                <p className="mt-2 text-lg">{citation(piece)}</p>
+                <p className="mt-2 text-lg">
+                  {citation(piece)}{" "}
+                  <span className="text-muted">
+                    Available at {brand.url}/research/{piece.slug}
+                  </span>
+                </p>
               </section>
             </div>
           </div>

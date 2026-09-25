@@ -73,8 +73,15 @@ function prepare(world: MapGrid, zoom: MapGrid) {
   const worldDots = buildDots(world, worldOrigin, hubCells, 1.1, INK);
   const zoomDots = buildDots(zoom, zoomOrigin, siteCells, 1.3, BLUE);
 
+  // Phones show only the band from just west of the westmost hub to just
+  // east of the eastmost, as fractions of the map's width.
+  const MARGIN = 8;
+  const left = Math.max(0, (Math.min(...hubCells.map((h) => h.x)) - MARGIN) / world.cols);
+  const right = Math.min(1, (Math.max(...hubCells.map((h) => h.x)) + MARGIN) / world.cols);
+
   // Today = the world; sovereign = zoomed into the British Isles.
   return {
+    crop: { left, width: right - left },
     today: {
       grid: world,
       dots: worldDots,
@@ -102,6 +109,7 @@ function prepare(world: MapGrid, zoom: MapGrid) {
 function ProblemMapClient({ world, zoom }: { world: MapGrid; zoom: MapGrid }) {
   const { cols, rows } = world;
   const maps = useMemo(() => prepare(world, zoom), [world, zoom]);
+  const { crop } = maps;
   const reduced = useReducedMotion();
   const [view, setView] = useState<View>("today");
   // While true, the canvas shows the blended dots so the old map fades out.
@@ -110,13 +118,6 @@ function ProblemMapClient({ world, zoom }: { world: MapGrid; zoom: MapGrid }) {
   const [hub, setHub] = useState<number | null>(null);
   const settle = useRef<ReturnType<typeof setTimeout>>(undefined);
   const [scope, animate] = useAnimate<HTMLDivElement>();
-  const strip = useRef<HTMLDivElement>(null);
-
-  // Phones: start the scrolling map centred (London sits mid-map in both views).
-  useEffect(() => {
-    const el = strip.current;
-    if (el) el.scrollLeft = (el.scrollWidth - el.clientWidth) / 2;
-  }, []);
 
   useEffect(() => () => clearTimeout(settle.current), []);
 
@@ -154,7 +155,7 @@ function ProblemMapClient({ world, zoom }: { world: MapGrid; zoom: MapGrid }) {
             aria-selected={view === v}
             onClick={() => choose(v)}
             className={`-mb-px border-b-2 pb-3 text-lg font-medium transition-colors md:text-xl ${
-              view === v ? "border-signal text-ink" : "border-transparent text-ink/40 hover:text-ink/70"
+              view === v ? "border-signal text-ink" : "border-transparent text-muted hover:text-ink"
             }`}
           >
             {views[v].label}
@@ -163,25 +164,30 @@ function ProblemMapClient({ world, zoom }: { world: MapGrid; zoom: MapGrid }) {
       </div>
 
       {/* Map: one dot canvas that morphs between the world and the British Isles.
-          Phones get a taller map in a sideways-scrolling strip, centred on the UK. */}
+          Phones crop the empty ocean at either side (keeping every hub), so
+          the map fits the screen without scrolling and can be taller. */}
       <div
-        ref={strip}
-        className="-mx-4 mt-8 overflow-x-auto overscroll-x-contain px-4 [scrollbar-width:none] md:mx-0 md:overflow-visible md:px-0"
+        className="relative mt-8 aspect-(--crop-ar) w-full overflow-hidden md:aspect-(--map-ar)"
+        style={
+          {
+            "--map-ar": `${cols} / ${rows}`,
+            "--crop-ar": `${fix(crop.width * cols)} / ${rows}`,
+          } as React.CSSProperties
+        }
+        role="group"
+        aria-label={
+          today
+            ? "World map: requests from the UK travel to overseas AI and cloud hubs and back."
+            : `Map of the UK: requests stay between ${ukSites.map((s) => s.name).join(", ")}.`
+        }
       >
         <div
-          className="relative h-(--map-h) w-[calc(var(--map-h)*var(--map-ar))] overflow-hidden md:h-auto md:w-full"
+          className="absolute inset-y-0 left-(--crop-left) w-(--crop-w) md:left-0 md:w-full"
           style={
             {
-              aspectRatio: `${cols} / ${rows}`,
-              "--map-h": "min(20rem, 50svh)",
-              "--map-ar": cols / rows,
+              "--crop-left": `${fix((-crop.left / crop.width) * 100)}%`,
+              "--crop-w": `${fix(100 / crop.width)}%`,
             } as React.CSSProperties
-          }
-          role="group"
-          aria-label={
-            today
-              ? "World map: requests from the UK travel to overseas AI and cloud hubs and back."
-              : `Map of the UK: requests stay between ${ukSites.map((s) => s.name).join(", ")}.`
           }
         >
           <div ref={scope} className="absolute inset-0">
@@ -219,7 +225,7 @@ function ProblemMapClient({ world, zoom }: { world: MapGrid; zoom: MapGrid }) {
                         type="button"
                         aria-label={`${h.name}: ${h.companies.join(", ")}`}
                         aria-expanded={open}
-                        className={`absolute hidden size-5 -translate-x-1/2 -translate-y-1/2 rounded-full transition-shadow md:block ${
+                        className={`absolute hidden size-6 -translate-x-1/2 -translate-y-1/2 rounded-full transition-shadow md:block ${
                           open ? "ring-2 ring-signal" : ""
                         }`}
                         style={{ left: `${fix((c.x / cols) * 100)}%`, top: `${fix((c.y / rows) * 100)}%` }}
@@ -253,7 +259,27 @@ function ProblemMapClient({ world, zoom }: { world: MapGrid; zoom: MapGrid }) {
           </div>
         </div>
       </div>
-      <p className="mt-3 text-sm text-muted md:hidden">Drag sideways to explore the map.</p>
+
+      {/* The hubs as text: an alternative to the small map markers, and the
+          only way to see the companies on phones. Collapsed by default. */}
+      <details className="mt-4 text-base">
+        <summary className="cursor-pointer text-muted transition-colors hover:text-ink">List hubs and companies</summary>
+        <ul className="mt-3 grid gap-2 sm:grid-cols-2">
+          {hubs.map((h) => (
+            <li key={h.name}>
+              <span className="font-medium">{h.name}</span>
+              <span className="text-muted"> · {h.companies.join(", ")}</span>
+            </li>
+          ))}
+        </ul>
+      </details>
+
+      {/* Screen readers: announce the view when it changes. */}
+      <p className="sr-only" aria-live="polite">
+        {today
+          ? "Showing today: requests from the UK travel to overseas AI and cloud hubs and back."
+          : "Showing with sovereign compute: requests stay between UK sites."}
+      </p>
 
       {/* Caption */}
       <div className="mt-8 grid gap-4 border-t border-line pt-6 md:grid-cols-12">
