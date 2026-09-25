@@ -10,6 +10,8 @@ export const brand = {
     "Building the framework and policy for AI inference and training that stays within the United Kingdom.",
   glyphSrc: "/glyph.png",
   email: "hello@example.co.uk",
+  /** Public address, printed on PDFs. Update when the domain changes. */
+  url: "https://sovuk.vercel.app",
   location: { city: "London", lat: 51.5072, lon: -0.1276 },
   socials: [
     { label: "LinkedIn", href: "https://www.linkedin.com/" },

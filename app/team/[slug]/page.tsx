@@ -50,7 +50,7 @@ export default async function TeamMemberPage({ params }: PageProps<"/team/[slug]
           <div className="md:col-span-7 md:col-start-6">
             <Eyebrow>{member.role}</Eyebrow>
             <Reveal>
-              <h1 className="mt-6 text-5xl font-medium leading-[1.02] tracking-[-0.035em] md:text-7xl">
+              <h1 className="mt-6 text-4xl font-medium sm:text-5xl leading-[1.02] tracking-[-0.035em] md:text-7xl">
                 {member.name}
                 <span className="text-signal">.</span>
               </h1>

@@ -22,7 +22,7 @@ export default function ContactPage() {
         <Eyebrow>Contact</Eyebrow>
         <div className="mt-8 grid gap-6 md:mt-10 md:grid-cols-12">
           <Reveal className="md:col-span-8">
-            <h1 className="text-5xl font-medium leading-[1.02] tracking-[-0.035em] text-balance md:text-7xl xl:text-8xl">
+            <h1 className="text-4xl font-medium leading-[1.02] sm:text-5xl tracking-[-0.035em] text-balance md:text-7xl xl:text-8xl">
               Start a conversation<span className="text-signal">.</span>
             </h1>
           </Reveal>

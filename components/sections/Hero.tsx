@@ -1,7 +1,12 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { motion, useMotionValue, useMotionValueEvent, useScroll } from "motion/react";
+import {
+  motion,
+  useMotionValue,
+  useMotionValueEvent,
+  useScroll,
+} from "motion/react";
 import DotCanvas from "@/components/ui/DotCanvas";
 import Button from "@/components/ui/Button";
 import Name from "@/components/Name";
@@ -25,14 +30,20 @@ function Hero() {
   const ref = useRef<HTMLDivElement>(null);
   const reduced = useReducedMotion();
   const [image, setImage] = useState<HTMLImageElement | null>(null);
-  // Dot size in px: the logo spans the stage's shorter side and the dot
-  // field fills the rest, so the stage is covered on any screen shape.
-  const [cell, setCell] = useState(0);
+  // The dot field fills the whole hero, behind the text. `cell` is the dot
+  // size in px, chosen so the logo spans the space above the text;
+  // `reserve` is how many rows at the bottom the text covers.
+  const [grid, setGrid] = useState({ cell: 0, reserve: 0 });
+  const { cell } = grid;
   const stageRef = useRef<HTMLDivElement>(null);
+  const textRef = useRef<HTMLDivElement>(null);
   // Motion values, not state: they update every scroll frame without
   // re-rendering React (the canvas subscribes to `spread` directly).
   const spread = useMotionValue(1);
-  const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end end"] });
+  const { scrollYProgress } = useScroll({
+    target: ref,
+    offset: ["start start", "end end"],
+  });
   // Set by hand from the scroll event rather than useTransform: Motion hands
   // transformed scroll values to native scroll-driven animations, which
   // don't hold their end value once the pin releases (the text vanished).
@@ -54,32 +65,45 @@ function Hero() {
   }, [reduced, textOpacity, spread]);
 
   useEffect(() => {
-    loadImage(brand.glyphSrc).then(setImage).catch(() => {});
+    loadImage(brand.glyphSrc)
+      .then(setImage)
+      .catch(() => {});
   }, []);
 
   useEffect(() => {
-    const el = stageRef.current;
-    if (!el) return;
-    const ro = new ResizeObserver(([e]) => {
-      const { width: w, height: h } = e.contentRect;
-      if (!w || !h) return;
-      setCell(Math.max(6, Math.min(w, h) / RES, Math.sqrt((w * h) / MAX_DOTS)));
-    });
-    ro.observe(el);
+    const stage = stageRef.current;
+    const text = textRef.current;
+    if (!stage || !text) return;
+    const measure = () => {
+      const { width: w, height: h } = stage.getBoundingClientRect();
+      const textH = text.getBoundingClientRect().height;
+      const free = h - textH;
+      if (!w || free <= 0) return;
+      const c = Math.max(
+        6,
+        Math.min(w, free) / RES,
+        Math.sqrt((w * h) / MAX_DOTS),
+      );
+      setGrid({ cell: c, reserve: Math.ceil(textH / c) });
+    };
+    const ro = new ResizeObserver(measure);
+    ro.observe(stage);
+    ro.observe(text);
     return () => ro.disconnect();
   }, []);
 
-  /** Faint dots across the whole grid, with the logo lit in the middle. */
+  /** Faint dots across the whole grid, with the logo lit in the space above the text. */
   const buildDots = useCallback(
     (cols: number, rows: number) => {
       if (!image) return [];
-      const size = Math.min(cols, rows);
+      const free = Math.max(1, rows - grid.reserve);
+      const size = Math.min(cols, free);
       const ox = Math.floor((cols - size) / 2);
-      const oy = Math.floor((rows - size) / 2);
+      const oy = Math.floor((free - size) / 2);
       const lit = new Set(
         sampleImage(image, size, size, { mask: "circle" })
           .filter(({ brightness, alpha }) => alpha > 32 && brightness > 128)
-          .map(({ x, y }) => (y + oy) * cols + x + ox)
+          .map(({ x, y }) => (y + oy) * cols + x + ox),
       );
       return Array.from({ length: cols * rows }, (_, i) => {
         const x = i % cols;
@@ -87,16 +111,14 @@ function Hero() {
         return lit.has(i) ? { x, y } : { x, y, alpha: 0.1 };
       });
     },
-    // `cell` changes the grid DotCanvas passes in; a new builder makes it rebuild.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [image, cell]
+    [image, grid],
   );
 
   return (
     <div ref={ref} className={reduced ? "" : "h-[200svh]"}>
-      <section className="sticky top-0 flex h-svh min-h-[40rem] flex-col pt-20">
-        {/* The canvas fills this stage; scattered dots stay inside it. */}
-        <div ref={stageRef} className="relative min-h-0 flex-1">
+      <section className="sticky top-0 flex h-svh min-h-[36rem] flex-col justify-end pt-20">
+        {/* The canvas fills the hero below the nav, behind the text; scattered dots stay inside it. */}
+        <div ref={stageRef} className="absolute inset-x-0 bottom-0 top-20">
           <DotCanvas
             dots={image && cell ? buildDots : null}
             cell={cell}
@@ -107,17 +129,24 @@ function Hero() {
             className="absolute! inset-x-0 inset-y-4"
           />
         </div>
-        <motion.div style={{ opacity: textOpacity }} className="shell">
-          <div className="grid gap-6 border-t border-ink py-8 md:grid-cols-12 md:items-end md:py-10">
-            <Name className="text-6xl md:col-span-4 md:text-7xl" />
-            <p className="text-2xl font-medium leading-[1.15] tracking-[-0.02em] md:col-span-5 md:text-3xl">
-              {brand.tagline}
-            </p>
-            <div className="flex flex-wrap gap-3 md:col-span-3 md:justify-end">
-              <Button href="/research">Read our research</Button>
-              <Button href="/contact" variant="secondary">
-                Get in touch
-              </Button>
+        {/* Solid paper behind the text, edge to edge, fading in with it so the dots never show through. */}
+        <motion.div
+          ref={textRef}
+          style={{ opacity: textOpacity }}
+          className="relative bg-paper"
+        >
+          <div className="shell">
+            <div className="grid gap-6 border-t border-ink py-8 md:grid-cols-12 md:items-end md:py-10">
+              <Name className="text-5xl sm:text-6xl md:col-span-4 md:text-7xl" />
+              <p className="text-xl font-medium leading-[1.15] sm:text-2xl tracking-[-0.02em] md:col-span-5 md:text-3xl">
+                {brand.tagline}
+              </p>
+              <div className="flex flex-wrap gap-3 md:col-span-3 md:justify-end">
+                <Button href="/research">Read our research</Button>
+                <Button href="/contact" variant="secondary">
+                  Get in touch
+                </Button>
+              </div>
             </div>
           </div>
         </motion.div>

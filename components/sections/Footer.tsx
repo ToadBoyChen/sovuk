@@ -21,7 +21,7 @@ const columns = [
 
 function Footer() {
   return (
-    <footer className="relative mt-32 overflow-hidden border-t border-line">
+    <footer className="relative mt-32 overflow-hidden border-t border-line print:hidden">
       <div className="shell relative grid grid-cols-2 gap-x-6 gap-y-12 pt-16 pb-10 md:grid-cols-12">
         <div className="col-span-2 md:col-span-5">
           <p className="max-w-md text-3xl font-medium leading-tight tracking-tight md:text-4xl">

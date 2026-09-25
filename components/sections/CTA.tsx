@@ -12,7 +12,7 @@ function CTA() {
         <div className="border-t border-ink pt-10 md:hidden">
           <Eyebrow>Get in touch</Eyebrow>
           <Reveal>
-            <h2 className="mt-6 text-5xl font-medium leading-[1.02] tracking-[-0.035em]">
+            <h2 className="mt-6 text-4xl font-medium sm:text-5xl leading-[1.02] tracking-[-0.035em]">
               Build sovereign AI with us<span className="text-signal">.</span>
             </h2>
           </Reveal>
