@@ -1,0 +1,112 @@
+---
+title: "Right-sizing models: routing requests by complexity"
+summary: How sending each request to the smallest model that can answer it well reduces cost and energy without reducing quality.
+type: note
+topic: Models
+authors: [toby-chen]
+status: in-progress
+date: 2027-03
+---
+
+<Callout title="Draft" tone="caveat">
+All figures in this draft are illustrative, chosen to show the method. They are not measurements and will be replaced with results before publication.
+</Callout>
+
+## The question
+
+Most requests to an AI service are simple. A large model can answer them, but so can a much smaller one, at a fraction of the cost and energy. The question for a sovereign service is how much can be saved by sending each request to the smallest model that answers it well, and what that costs in quality.
+
+## A simple model of routing
+
+Suppose a router sends a share $p$ of requests to a small model and the rest to a large one. With $c_S$ and $c_L$ the cost per request of each model, and $c_R$ the cost of routing itself, the expected cost per request is
+
+$$
+C(p) = c_R + p\,c_S + (1 - p)\,c_L .
+$$
+
+Quality falls as $p$ rises, because the router has to send harder requests to the small model. Writing $q_L$ for the large model's quality and $\bar{q}_S(p)$ for the small model's average quality on the requests it receives,
+
+$$
+Q(p) = (1 - p)\,q_L + p\,\bar{q}_S(p).
+$$
+
+The service should route as much as it can while keeping quality above an agreed floor $Q_{\min}$:
+
+$$
+p^{\ast} = \max \{\, p : Q(p) \ge Q_{\min} \,\}, \qquad
+\text{saving} = \frac{c_L - C(p^{\ast})}{c_L}.
+$$
+
+### Illustrative parameters
+
+| Parameter | Symbol | Illustrative value |
+| --- | --- | --- |
+| Large model, per 1,000 requests | $c_L$ | £12.00 |
+| Small model, per 1,000 requests | $c_S$ | £1.50 |
+| Routing, per 1,000 requests | $c_R$ | £0.20 |
+| Quality floor | $Q_{\min}$ | 90% |
+
+## Cost
+
+Cost falls in a straight line as more requests go to the small model.[^linear]
+
+<Chart
+  type="line"
+  title="Cost per 1,000 requests"
+  subtitle="By share of requests routed to the small model"
+  x={{ label: "Share routed to the small model", suffix: "%" }}
+  y={{ label: "Cost per 1,000 requests", prefix: "£", decimals: 2 }}
+  series={[
+    { name: "With routing", points: [[0, 12.2], [10, 11.15], [20, 10.1], [30, 9.05], [40, 8], [50, 6.95], [60, 5.9], [70, 4.85], [80, 3.8], [90, 2.75], [100, 1.7]] },
+    { name: "Large model only", points: [[0, 12], [10, 12], [20, 12], [30, 12], [40, 12], [50, 12], [60, 12], [70, 12], [80, 12], [90, 12], [100, 12]] },
+  ]}
+  source="Illustrative figures, not measurements."
+/>
+
+## Quality
+
+Quality holds up while the router is only passing on easy requests, then falls away quickly.
+
+<Chart
+  type="line"
+  title="Answer quality"
+  subtitle="Share of answers rated acceptable, by share routed to the small model"
+  x={{ label: "Share routed to the small model", suffix: "%" }}
+  y={{ label: "Acceptable answers", suffix: "%" }}
+  series={[
+    { name: "With routing", points: [[0, 92], [10, 92], [20, 91.8], [30, 91.3], [40, 90.4], [50, 88.9], [60, 86.6], [70, 83.4], [80, 79.2], [90, 73.8], [100, 67]] },
+  ]}
+  source="Illustrative figures, not measurements."
+/>
+
+With a 90% floor, the largest share that can be routed is about 40%, where cost is £8.00 per 1,000 requests against £12.00 for the large model alone.
+
+<Callout title="Illustrative result">
+Routing about 40% of requests to the small model would cut cost by around a third while keeping quality above the floor.
+</Callout>
+
+## Energy
+
+The same logic applies to energy, where the gap between model sizes is larger still.
+
+<Chart
+  type="bar"
+  title="Energy per request"
+  subtitle="By component"
+  y={{ label: "Energy per request", suffix: " Wh", decimals: 2 }}
+  data={[
+    { label: "Router", value: 0.01 },
+    { label: "Small model", value: 0.3 },
+    { label: "Large model", value: 3 },
+  ]}
+  source="Illustrative figures, not measurements."
+/>
+
+## Next steps
+
+1. Measure $c_S$, $c_L$ and $c_R$ on UK-hosted hardware.
+2. Build an evaluation set of real, anonymised public-sector requests.
+3. Agree $Q_{\min}$ with the services that would use it.[^floor]
+
+[^linear]: Linear because each request goes to exactly one model. Batching and caching would bend the curve; they are left out of this draft.
+[^floor]: The right floor will differ by use: a drafting assistant can tolerate more than a service giving guidance to the public.

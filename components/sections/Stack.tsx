@@ -37,15 +37,16 @@ function Stack() {
 
   return (
     <div className="shell mt-10 grid gap-6 md:mt-20 md:grid-cols-12 md:items-center md:gap-12">
-      {/* Plates */}
-      <div aria-hidden className="relative mx-auto aspect-[4/5] w-full max-w-[17rem] sm:max-w-sm md:col-span-5 md:max-w-none">
+      {/* Plates. On phones they sit left with a tappable label beside each. */}
+      <div className="relative mx-auto aspect-square w-full max-w-md md:col-span-5 md:aspect-[4/5] md:max-w-none">
         {stack.map((layer, i) => {
           const active = i === selected;
           const top = FIRST + i * GAP + (i > selected ? OPEN : 0);
           return (
             <motion.div
               key={layer.title}
-              className="absolute left-1/2 aspect-square w-[58%] -translate-x-1/2 -translate-y-1/2 cursor-pointer"
+              aria-hidden
+              className="absolute left-[36%] aspect-square w-[46%] -translate-x-1/2 -translate-y-1/2 cursor-pointer md:left-1/2 md:w-[58%]"
               style={{ zIndex: stack.length - i }}
               initial={false}
               animate={{ top: `${top}%` }}
@@ -62,6 +63,54 @@ function Stack() {
             </motion.div>
           );
         })}
+        {stack.map((layer, i) => {
+          const active = i === selected;
+          const top = FIRST + i * GAP + (i > selected ? OPEN : 0);
+          return (
+            <motion.button
+              key={layer.title}
+              type="button"
+              aria-pressed={active}
+              className={`absolute left-[72%] -translate-y-1/2 whitespace-nowrap text-left text-base font-medium transition-colors md:hidden ${
+                active ? "text-sovereign" : "text-ink/40"
+              }`}
+              initial={false}
+              animate={{ top: `${top}%` }}
+              transition={{ duration: reduced ? 0 : 0.5, ease: [0.22, 1, 0.36, 1] }}
+              onClick={() => setSelected(i)}
+            >
+              {layer.title}
+            </motion.button>
+          );
+        })}
+      </div>
+
+      {/* Phones: the selected layer, right under the plates. */}
+      <div className="md:hidden">
+        <AnimatePresence mode="wait" initial={false}>
+          <motion.div
+            key={selected}
+            initial={reduced ? false : { opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={reduced ? undefined : { opacity: 0, y: -8 }}
+            transition={{ duration: 0.25 }}
+            className="border-t border-line pt-5"
+          >
+            <p className="flex items-baseline gap-4">
+              <span className="text-lg font-medium tabular-nums text-signal">{String(selected + 1).padStart(2, "0")}</span>
+              <span className="text-3xl font-medium tracking-[-0.03em]">{stack[selected].title}</span>
+            </p>
+            <p className="mt-3 text-lg leading-relaxed text-ink/70">{stack[selected].summary}</p>
+            <ul className="mt-4 grid gap-2">
+              {stack[selected].points.map((point) => (
+                <li key={point} className="flex items-center gap-3 text-base">
+                  <span aria-hidden className="h-[3px] w-4 bg-sovereign" />
+                  {point}
+                </li>
+              ))}
+            </ul>
+          </motion.div>
+        </AnimatePresence>
       </div>
 
       {/* Layers */}
@@ -69,7 +118,7 @@ function Stack() {
         role="tablist"
         aria-orientation="vertical"
         aria-label="Layers of the sovereign stack"
-        className="md:col-span-6 md:col-start-7"
+        className="hidden md:col-span-6 md:col-start-7 md:block"
       >
         {stack.map((layer, i) => {
           const active = i === selected;

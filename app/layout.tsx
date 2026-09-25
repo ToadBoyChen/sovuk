@@ -31,7 +31,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       lang="en-GB"
       className={`${outfit.variable} h-full antialiased`}
     >
-      <body id="top" className="flex min-h-full flex-col font-sans">
+      <body id="top" className="flex min-h-svh flex-col font-sans">
         <a
           href="#main"
           className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[60] focus:bg-ink focus:px-4 focus:py-2 focus:text-paper"

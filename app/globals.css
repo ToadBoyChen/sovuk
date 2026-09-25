@@ -14,6 +14,8 @@
     --line: #e6e6e6;
     --muted: #6b6b6b;
     --subtle: #f6f6f4;
+    /* Third chart series (after sovereign, signal); validated for colour-blind contrast. */
+    --chart-3: #0e8a6a;
 
     /* Light only: form controls, scrollbars and forced-dark modes stay light. */
     color-scheme: only light;
@@ -97,9 +99,33 @@ html.lenis body {
     }
 }
 
+/* <Arrow>: dashes flow towards the head while its group is hovered or focused. */
+@keyframes arrow-flow {
+    to { stroke-dashoffset: -4.5; }
+}
+.arrow-shaft {
+    stroke-dasharray: 2.5 2;
+}
+.arrow-head {
+    transition: transform 0.3s ease;
+}
+.group:hover .arrow-shaft,
+.group:focus-visible .arrow-shaft {
+    animation: arrow-flow 0.45s linear infinite;
+}
+.group:hover .arrow-head,
+.group:focus-visible .arrow-head {
+    transform: translateX(1.5px);
+}
+
 @media (prefers-reduced-motion: reduce) {
-    .animate-pulse-dot {
+    .animate-pulse-dot,
+    .group:hover .arrow-shaft,
+    .group:focus-visible .arrow-shaft {
         animation: none;
+    }
+    .arrow-head {
+        transition: none;
     }
 }
 
@@ -112,4 +138,36 @@ html.lenis body {
     @media (width >= 48rem) {
         padding-inline: clamp(1.5rem, 2.5vw, 3.5rem);
     }
+}
+
+/* Research pieces: display maths scrolls sideways rather than overflowing,
+   and GFM footnotes sit under a rule in smaller type. */
+.research .katex-display {
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding-block: 0.5rem;
+    margin-block: 2rem;
+}
+.research .katex {
+    font-size: 1.08em;
+}
+.research section[data-footnotes] {
+    margin-top: 4rem;
+    border-top: 1px solid var(--line);
+    padding-top: 1.5rem;
+    font-size: 1rem;
+}
+.research section[data-footnotes] h2 {
+    font-size: 1rem;
+    margin-top: 0;
+    color: var(--muted);
+}
+.research section[data-footnotes] p,
+.research section[data-footnotes] li {
+    font-size: 1rem;
+    margin-top: 0.25rem;
+}
+.research h2,
+.research h3 {
+    scroll-margin-top: 6rem;
 }

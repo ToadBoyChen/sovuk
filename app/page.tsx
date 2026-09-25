@@ -2,11 +2,11 @@ import CTA from "@/components/sections/CTA";
 import Hero from "@/components/sections/Hero";
 import ProblemMap from "@/components/sections/ProblemMap";
 import Request from "@/components/sections/Request";
+import ResearchPreview from "@/components/sections/ResearchPreview";
 import Roadmap from "@/components/sections/Roadmap";
 import Stack from "@/components/sections/Stack";
 import Team from "@/components/sections/Team";
 import WhoWeAre from "@/components/sections/WhoWeAre";
-import Placeholder from "@/components/ui/Placeholder";
 import Section from "@/components/ui/Section";
 
 function Home() {
@@ -39,8 +39,13 @@ function Home() {
       </Section>
       <Roadmap />
       <Team />
-      <Section id="research" label="Research" title="Latest research.">
-        <Placeholder label="Latest papers — coming in phase 4" />
+      <Section
+        id="research"
+        label="Research"
+        title="What we're working on."
+        intro="Policy briefs and papers on sovereign AI compute, each with a named lead and a target date."
+      >
+        <ResearchPreview />
       </Section>
       <CTA />
     </>

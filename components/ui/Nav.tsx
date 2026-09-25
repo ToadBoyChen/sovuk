@@ -1,12 +1,11 @@
 "use client";
 
 import Link from "next/link";
+import Arrow from "@/components/ui/Arrow";
 import { useEffect, useState } from "react";
 import Glyph from "@/components/Glyph";
 import { brand, navLinks } from "@/lib/brand";
 
-/** Fired by the ⌘K hint; the command palette listens for it. */
-export const OPEN_PALETTE_EVENT = "open-command-palette";
 
 function Nav() {
   const [scrolled, setScrolled] = useState(false);
@@ -61,15 +60,6 @@ function Nav() {
               {link.label}
             </Link>
           ))}
-          <button
-            type="button"
-            onClick={() => window.dispatchEvent(new Event(OPEN_PALETTE_EVENT))}
-            className="flex items-center gap-2 text-base text-muted transition-colors hover:text-ink"
-            aria-label="Open command palette"
-          >
-            Search
-            <kbd className="font-sans text-ink/40">⌘K</kbd>
-          </button>
         </div>
 
         <button
@@ -105,10 +95,10 @@ function Nav() {
               <Link
                 href={link.href}
                 onClick={() => setOpen(false)}
-                className="flex items-baseline justify-between py-5 text-5xl font-medium tracking-tight"
+                className="group flex items-center justify-between py-5 text-5xl font-medium tracking-tight"
               >
                 {link.label}
-                <span aria-hidden className="text-2xl text-sovereign">→</span>
+                <Arrow className="text-2xl text-sovereign" />
               </Link>
             </li>
           ))}
