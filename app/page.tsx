@@ -1,6 +1,9 @@
 import CTA from "@/components/sections/CTA";
 import Hero from "@/components/sections/Hero";
+import ProblemMap from "@/components/sections/ProblemMap";
+import Request from "@/components/sections/Request";
 import Roadmap from "@/components/sections/Roadmap";
+import Stack from "@/components/sections/Stack";
 import Team from "@/components/sections/Team";
 import WhoWeAre from "@/components/sections/WhoWeAre";
 import Placeholder from "@/components/ui/Placeholder";
@@ -16,7 +19,7 @@ function Home() {
         title="Where does British AI actually run?"
         intro="Most AI used in the UK is trained and served on infrastructure outside UK jurisdiction."
       >
-        <Placeholder label="3D dot-globe — coming in phase 3" />
+        <ProblemMap />
       </Section>
       <WhoWeAre />
       <Section
@@ -25,14 +28,14 @@ function Home() {
         title="Sovereignty is a stack, not a slogan."
         intro="Every layer — from energy to policy — has to be British for the whole to be sovereign."
       >
-        <Placeholder label="3D sovereign stack — coming in phase 3" />
+        <Stack />
       </Section>
       <Section
         id="request"
         label="Follow a request"
         title="One prompt. Never leaves the UK."
       >
-        <Placeholder label="Follow-a-request animation — coming in phase 3" />
+        <Request />
       </Section>
       <Roadmap />
       <Team />

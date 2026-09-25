@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Outfit } from "next/font/google";
 import "./globals.css";
 import { brand } from "@/lib/brand";
@@ -17,6 +17,12 @@ export const metadata: Metadata = {
     template: `%s · ${brand.shortName}`,
   },
   description: brand.description,
+};
+
+/** Light only: stops phone browsers in dark mode from recolouring the site. */
+export const viewport: Viewport = {
+  colorScheme: "only light",
+  themeColor: "#ffffff",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

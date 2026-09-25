@@ -8,7 +8,28 @@ function CTA() {
   return (
     <section id="contact" data-section="Get in touch" className="scroll-mt-16">
       <div className="shell pt-28 md:pt-44">
-        <div className="relative overflow-hidden bg-ink px-6 py-16 text-paper md:px-16 md:py-32">
+        {/* Phones: a light, compact version instead of the full-bleed band. */}
+        <div className="border-t border-ink pt-10 md:hidden">
+          <Eyebrow>Get in touch</Eyebrow>
+          <Reveal>
+            <h2 className="mt-6 text-5xl font-medium leading-[1.02] tracking-[-0.035em]">
+              Build sovereign AI with us<span className="text-signal">.</span>
+            </h2>
+          </Reveal>
+          <p className="mt-6 text-xl text-ink/70">
+            Investors, policymakers, researchers and future colleagues — we&apos;d like to hear from you.
+          </p>
+          <div className="mt-8 grid gap-3">
+            <Button href="/contact" className="justify-between">
+              Start a conversation
+            </Button>
+            <Button href="/research" variant="secondary" className="justify-between">
+              Read the research
+            </Button>
+          </div>
+        </div>
+
+        <div className="relative hidden overflow-hidden bg-ink px-6 py-16 text-paper md:block md:px-16 md:py-32">
           {/* A faint logo glyph, cropped by the band's right edge; still reacts to the cursor. */}
           <div
             aria-hidden

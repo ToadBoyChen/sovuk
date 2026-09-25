@@ -15,6 +15,9 @@
     --muted: #6b6b6b;
     --subtle: #f6f6f4;
 
+    /* Light only: form controls, scrollbars and forced-dark modes stay light. */
+    color-scheme: only light;
+
     /* Aliases read by canvas components (e.g. Glyph) via getComputedStyle. */
     --background: var(--paper);
     --foreground: var(--ink);
